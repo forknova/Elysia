@@ -36,8 +36,8 @@ const ALL_PLANS = Object.keys(plans);
 export const shopify = shopifyApi({
   apiKey: env('SHOPIFY_API_KEY'),
   apiSecretKey: env('SHOPIFY_API_SECRET'),
-  scopes: ['read_products'],
-  hostName: 'kashuab.ngrok.io',
+  scopes: env('SHOPIFY_API_SCOPES').split(','),
+  hostName: env('HOST_NAME'),
   apiVersion: LATEST_API_VERSION,
   isEmbeddedApp: true,
   billing: plans
