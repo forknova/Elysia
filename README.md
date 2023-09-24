@@ -2,7 +2,16 @@
 
 The app is a SPA designed to integrate with Shopify.
 
-Stack:
+## This is not production ready
+
+While it may work, I can't recommend production usage. This is relatively bare-bones, but there are some things that work:
+
+- Installation flow
+- Billing
+- Shopify Admin GQL API queries
+- Shopify app bridge
+
+## Stack
 
 - Bun (of course)
 - Elysia

@@ -2,7 +2,7 @@ import './mongoose.ts';
 
 import { Elysia } from 'elysia'
 import cors from "@elysiajs/cors";
-import {elysiaShopify, getShopifyGraphQLClient} from "./shopify.ts";
+import {elysiaShopify, ensureBilling, getShopifyGraphQLClient} from "./shopify.ts";
 import {env} from "./env.ts";
 import {ProductConnection} from "../shopify-gql-api.ts";
 
@@ -20,6 +20,9 @@ const app = new Elysia()
     callbackPath: '/auth/callback'
   }))
   .get('/products', async (context) => {
+    const proceed = await ensureBilling(context, ['pro']);
+    if (!proceed) return;
+
     const client = await getShopifyGraphQLClient(context);
 
     const response = await client?.query<{ products: ProductConnection }>({
