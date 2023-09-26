@@ -9,10 +9,9 @@ import {
   shopifyApi
 } from '@shopify/shopify-api';
 import {env} from "./env.ts";
-import {Elysia} from "elysia";
+import {Context, Elysia} from "elysia";
 import {Shop, ShopModel} from "./models/Shop.ts";
 import {UserError} from "../shopify-gql-api.ts";
-import {AppContext} from "./index.ts";
 
 const plans = {
   basic: {
@@ -43,30 +42,28 @@ export const shopify = shopifyApi({
   billing: plans
 });
 
-type ElysiaShopifyOpts = {
-  /**
-   * i.e. `"/app"`, `"http://localhost:5173"`, `"https://your-app.com"`
-   */
-  appUrl: string;
+type ElysiaShopifyOpts<AuthPath extends string, CallbackPath extends string> = {
 
   /**
    * i.e. `"/auth"`
    */
-  authPath: string;
+  authPath: AuthPath;
 
   /**
    * i.e. `"/auth/callback"`
    */
-  callbackPath: string;
+  callbackPath: CallbackPath;
 }
 
-export function elysiaShopify(opts: ElysiaShopifyOpts) {
-  const { appUrl, authPath, callbackPath  } = opts;
+export function elysiaShopify<AuthPath extends string, CallbackPath extends string>(
+  opts: ElysiaShopifyOpts<AuthPath, CallbackPath>
+) {
+  const { authPath, callbackPath } = opts;
 
   return new Elysia()
-    .derive(async ({ headers }) => {
+    .derive(async ({ headers }): Promise<{ shop?: Shop; session?: Session; }> => {
       const sessionToken = headers['authorization']?.replace('Bearer ', '');
-      if (!sessionToken) return;
+      if (!sessionToken) return {};
 
       const jwtPayload = await (async () => {
         try {
@@ -77,35 +74,39 @@ export function elysiaShopify(opts: ElysiaShopifyOpts) {
         }
       })();
 
-      if (!jwtPayload) return;
+      if (!jwtPayload) return {};
 
       const shopDomain = new URL(jwtPayload.dest).hostname;
       const shop = await ShopModel.findOne({ domain: shopDomain });
-      if (!shop) return;
+      if (!shop) return {};
 
       const session = shopToSession(shop);
 
       return { shop, session };
     })
-    .get('/', async ({ query, set }) => {
-      const shopDomain = shopify.utils.sanitizeShop(query.shop || '', true)
-      if (!shopDomain) {
-        set.status = 400;
-        return '<h1>Bad request</h1>';
-      }
+    .derive((context) => {
+      const client = getShopifyGraphQLClient(context);
 
-      const shop = await ShopModel.findOne({ domain: shopDomain });
-      if (!shop) {
-        const search = new URLSearchParams(query as Record<string, string>);
-        set.redirect = `${authPath}?${search.toString()}`;
+      return {
+        shopify: {
+          graphql: {
+            admin: async <T>(query: string, variables?: Record<string, any>): Promise<T> => {
+              if (!client) throw new Error('Failed to generate graphql client, most likely missing session');
 
-        return `<h1>Logging in...</h1>`;
-      }
+              const response = await client.query<{ data: T }>({
+                data: {
+                  query,
+                  variables
+                }
+              });
 
-      console.log(`${shopDomain} installed, redirecting to front-end`)
-      set.redirect = `${appUrl}?shop=${shopDomain}`;
+              return response.body.data;
+            }
+          }
+        }
+      };
     })
-    .get('/auth', async ({ set, query, request }) => {
+    .get(authPath, async ({ set, query, request }) => {
       const shop = shopify.utils.sanitizeShop(query.shop || '', true)
       if (!shop) {
         set.status = 400;
@@ -122,7 +123,7 @@ export function elysiaShopify(opts: ElysiaShopifyOpts) {
         rawResponse: response,
       });
     })
-    .get('/auth/callback', async ({ request, set }) => {
+    .get(callbackPath, async ({ request, set }) => {
       const response = new Response();
 
       const callback = await shopify.auth.callback({
@@ -157,7 +158,7 @@ export function elysiaShopify(opts: ElysiaShopifyOpts) {
       if (!proceed) return;
 
       return {
-        domain: context.shop.domain
+        domain: context.shop?.domain
       }
     })
 }
@@ -167,7 +168,9 @@ export function elysiaShopify(opts: ElysiaShopifyOpts) {
  * @param context
  * @param plans
  */
-export async function ensureBilling(context: AppContext, plans: string[] = ALL_PLANS) {
+export async function ensureBilling(context: Context & { session?: Session }, plans: string[] = ALL_PLANS) {
+  if (!context.session) return false;
+
   try {
     const hasBilling = await shopify.billing.check({ plans, session: context.session })
 
@@ -192,9 +195,11 @@ export async function ensureBilling(context: AppContext, plans: string[] = ALL_P
 
 type GraphqlClient = InstanceType<typeof shopify.clients.Graphql>
 
-export async function getShopifyGraphQLClient(context: AppContext): Promise<GraphqlClient | null> {
+export function getShopifyGraphQLClient({ session }: { session?: Session }): GraphqlClient | null {
+  if (!session) return null;
+
   return new shopify.clients.Graphql({
-    session: context.session
+    session
   })
 }
 

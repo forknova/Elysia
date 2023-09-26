@@ -37,12 +37,9 @@ function App() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    (async () => {
-      const shop = await app.shop.get();
-      const products = await app.products.get();
+    app.products.get().then(({ data }) => {
 
-      console.log({ shop, products });
-    })();
+    });
   }, []);
 
   return (

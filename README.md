@@ -11,6 +11,12 @@ While it may work, I can't recommend production usage. This is relatively bare-b
 - Shopify Admin GQL API queries
 - Shopify app bridge
 
+### TODO:
+
+- Shopify CLI
+- Storefront API
+- 
+
 ## Stack
 
 - Bun (of course)
