@@ -37,3 +37,12 @@ While it may work, I can't recommend production usage. This is relatively bare-b
 **Client:**
 
 - There's a `useEden` hook to make dispatching requests to your API easier to work with in your React components
+- The `edenTreaty` initialization uses `withShopifyAuth` and `withAbortControllers` fetch composers for your convenience
+
+## TODOs
+
+- There are a few interesting type issues (See `// @ts-ignore` comments)
+- Better README for setup
+- Add better front-end boilerplate with Shopify Polaris, and some more app bridge examples
+- All-in-one docker development environment (easier set up)
+- Document an example deployment process (GCS static front-end, Cloud Run server)
