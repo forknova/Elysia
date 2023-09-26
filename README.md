@@ -10,12 +10,7 @@ While it may work, I can't recommend production usage. This is relatively bare-b
 - Billing
 - Shopify Admin GQL API queries
 - Shopify app bridge
-
-### TODO:
-
-- Shopify CLI
-- Storefront API
-- 
+- Shopify CLI integration
 
 ## Stack
 
@@ -23,18 +18,22 @@ While it may work, I can't recommend production usage. This is relatively bare-b
 - Elysia
 - MongoDB w/ Typegoose
 - Vite
-- `@shopify/shopify-api`
 
 ## Get stated
 
 1. Clone the repo
 2. `cd client`
 3. `bun install`
-4. `cd ../server`
-5. `bun install`
-6. Fill out the appropriate environment variables in `client/.env` and `server/.env` (you'll have to copy/paste/rename the `.env.example` in each directory)
-7. `cd client`
-8. `bun dev`
-9. Open another terminal
-10. `cd server`
-11. `bun start`
+4. Run `bun install` in both `web/client` and `web/server`
+5. Copy and paste `.env.example` to `.env` in both `web/client` and `web/server`, filling out applicable variables
+6. Run `bun dev` in the project root which will invoke the Shopify CLI
+
+## Notes
+
+**Server:**
+
+- The `elysiaShopify` plugin uses `derive` to provide a `shop` and `session` object for your routes
+
+**Client:**
+
+- There's a `useEden` hook to make dispatching requests to your API easier to work with in your React components

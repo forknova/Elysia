@@ -40,6 +40,8 @@ function withShopifyAuth(_fetch: Fetcher): Fetcher {
 
     const topRedirect = response.headers.get('x-top-redirect');
     if (topRedirect) {
+      // TODO: Why aren't window types present?
+      // @ts-ignore
       window.open(topRedirect, '_top');
     }
 
