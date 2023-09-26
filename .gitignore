@@ -1,5 +1,6 @@
-client/.env
-server/.env
-client/node_modules
-server/node_modules
+web/client/.env
+web/server/.env
+web/client/node_modules
+web/server/node_modules
+node_modules
 .idea

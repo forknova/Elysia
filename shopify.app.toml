@@ -1,0 +1,29 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+name = "Elysia testing"
+client_id = "ed7c2af230432d48b47510da084d711e"
+application_url = "https://able-alabama-seeker-further.trycloudflare.com"
+embedded = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+use_legacy_install_flow = true
+
+[auth]
+redirect_urls = [
+  "https://able-alabama-seeker-further.trycloudflare.com/auth",
+  "https://able-alabama-seeker-further.trycloudflare.com/auth/callback"
+]
+
+[webhooks]
+api_version = "2023-07"
+
+[pos]
+embedded = false
+
+[app_preferences]
+url = "https://localhost:5173/"
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "kyle-helium-2.myshopify.com"

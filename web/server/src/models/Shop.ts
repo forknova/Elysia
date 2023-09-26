@@ -1,6 +1,6 @@
 import {getModelForClass, prop} from "@typegoose/typegoose";
 
-export class ShopClass {
+export class Shop {
   @prop({ unique: true, required: true })
   public domain!: string;
 
@@ -23,5 +23,4 @@ export class ShopClass {
   public accessToken!: string;
 }
 
-export const ShopModel = getModelForClass(ShopClass, { options: { customName: 'Shop' } });
-export type Shop = InstanceType<typeof ShopModel>;
+export const ShopModel = getModelForClass(Shop);

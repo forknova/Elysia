@@ -1,9 +1,10 @@
 import './mongoose.ts';
 
-import { Elysia } from 'elysia'
+import { Elysia, t } from 'elysia'
 import cors from "@elysiajs/cors";
 import {elysiaShopify} from "./shopify.ts";
 import {ProductConnection} from "../shopify-gql-api.ts";
+import {env} from "./env.ts";
 
 const app = new Elysia()
   .use(cors())
@@ -28,6 +29,14 @@ const app = new Elysia()
       }
     `);
   })
-  .listen(8080);
+  .post('/something', () => {
+    return { wow: true }
+  }, {
+    body: t.Object({
+      username: t.String(),
+      password: t.String()
+    })
+  })
+  .listen(parseInt(env('BACKEND_PORT')));
 
 export type App = typeof app;

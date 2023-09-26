@@ -12,6 +12,7 @@ import {env} from "./env.ts";
 import {Context, Elysia} from "elysia";
 import {Shop, ShopModel} from "./models/Shop.ts";
 import {UserError} from "../shopify-gql-api.ts";
+import {DocumentType} from "@typegoose/typegoose";
 
 const plans = {
   basic: {
@@ -36,14 +37,13 @@ export const shopify = shopifyApi({
   apiKey: env('SHOPIFY_API_KEY'),
   apiSecretKey: env('SHOPIFY_API_SECRET'),
   scopes: env('SHOPIFY_API_SCOPES').split(','),
-  hostName: env('HOST_NAME'),
+  hostName: new URL(env('APP_URL')).hostname,
   apiVersion: LATEST_API_VERSION,
   isEmbeddedApp: true,
   billing: plans
 });
 
 type ElysiaShopifyOpts<AuthPath extends string, CallbackPath extends string> = {
-
   /**
    * i.e. `"/auth"`
    */
@@ -203,7 +203,7 @@ export function getShopifyGraphQLClient({ session }: { session?: Session }): Gra
   })
 }
 
-function shopToSession(shop: Shop): Session {
+function shopToSession(shop: DocumentType<Shop>): Session {
   return new Session({
     ...shop.toJSON(),
     id: shop.sessionId,

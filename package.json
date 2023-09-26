@@ -1,0 +1,20 @@
+{
+  "name": "elysia-shopify",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "shopify app dev",
+    "cf-fix": "bun ./node_modules/@shopify/plugin-cloudflare/scripts/postinstall.js"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@shopify/app": "^3.49.3",
+    "@shopify/cli": "^3.49.3",
+    "@shopify/plugin-cloudflare": "^3.49.3"
+  }
+}
